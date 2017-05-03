@@ -14,3 +14,6 @@ Browse the tags to checkout the different iterations of the project.
 * V01 - Ordered by color similiarity using a selection sort-esque algorithm
 
 ![01](docs/images/v01.png)
+
+* v02 - Find the next color by getting the first one under a threshold instead of finding the closest. 5x faster!
+![02](docs/images/v02.png)
