@@ -2,9 +2,9 @@ from PIL import Image
 import cProfile
 from random import shuffle, randint
 from datetime import datetime
-# from colormath.color_objects import sRGBColor, LabColor 
-# from colormath.color_conversions import convert_color
-# from colormath.color_diff import delta_e_cie2000 
+from colormath.color_objects import sRGBColor, LabColor 
+from colormath.color_conversions import convert_color
+from colormath.color_diff import delta_e_cie2000 
 
 
 # Formula for calculating number of colors per channel
@@ -13,19 +13,21 @@ from datetime import datetime
 
 ##########
 # 2**15
-
-IMG_WIDTH = 256
-IMG_HEIGHT = 128
-COLORS_PER_CHANNEL = 32
-COLOR_OFFSET = 8
+# COLOR_DEPTH = 15
+# IMG_WIDTH = 256
+# IMG_HEIGHT = 128
+# COLORS_PER_CHANNEL = 32
+# COLOR_OFFSET = 8
 
 ##########
 # 2**18
+COLOR_DEPTH = 18
+IMG_WIDTH = 512
+IMG_HEIGHT = 512
+COLORS_PER_CHANNEL = 64
+COLOR_OFFSET = 4
 
-# IMG_WIDTH = 512
-# IMG_HEIGHT = 512
-# COLORS_PER_CHANNEL = 64
-# COLOR_OFFSET = 4
+COLOR_DISTANCE_THRESHOLD = 100
 
 image = Image.new("RGB", (IMG_WIDTH, IMG_HEIGHT))
 
@@ -44,7 +46,7 @@ def insert_colors(colors, image):
   px = image.load()
   counter = 0
   total = IMG_WIDTH * IMG_HEIGHT
-  percentage_pt = int(total / 100) 
+  percentage_pt = int(total / 100 / 10) 
 
   print("Inserting colors")
 
@@ -57,10 +59,21 @@ def insert_colors(colors, image):
       if counter == 0:
         pixel = colors.pop(randint(0, len(colors)))
       else:
-        closest_color = colors[0]
+        # closest_color = colors[0]
 
-        for c in colors:
-          closest_color = min_color(last_pixel, closest_color, c)
+        # for c in colors:
+        #   closest_color = min_color(last_pixel, closest_color, c)
+
+        i = 0
+        current_distance = 999999
+
+        while current_distance > COLOR_DISTANCE_THRESHOLD and i < len(colors):
+          d = calc_distance(last_pixel, colors[i])
+          if d < current_distance:
+            current_distance = d
+            closest_color = colors[i]
+          
+          i += 1
 
         colors.remove(closest_color)
         pixel = closest_color
@@ -76,18 +89,17 @@ def insert_colors(colors, image):
   print("###########  {:.2%}  ###########".format(1))
 
 
-def min_color(target, color1, color2):
-  if calc_distance(target, color1) <= calc_distance(target, color2):
-    return color1
-  else:
-    return color2
+# def min_color(target, color1, color2):
+#   if calc_distance(target, color1) <= calc_distance(target, color2):
+#     return color1
+#   else:
+#     return color2
 
-
+# Returns an int ranging 0 to 195075. 0 being the same, 195075 being completely opposite
 def calc_distance(color1, color2):
   r = color1[0] - color2[0]
   g = color1[1] - color2[1]
   b = color1[2] - color2[2]
-
   return r * r + g * g + b * b
 
 
@@ -103,6 +115,8 @@ def calc_distance(color1, color2):
 #   else:
 #     return color2
 
+
+# Returns a float ranging 0 to 100. 0 being the same, 100 being completely opposite
 # def calc_lab_distance(color1, color2):
 #   color1_rgb = sRGBColor(color1[0] / 255, color1[1] / 255, color1[2] / 255)
 #   color2_rgb = sRGBColor(color2[0] / 255, color2[1] / 255, color2[2] / 255)
@@ -114,6 +128,8 @@ colors = generate_color_array()
 cProfile.run("insert_colors(colors, image)")
 # insert_colors(colors, image)
 
+filename = "RGB-D{}-T{}-{}.png".format(COLOR_DEPTH, COLOR_DISTANCE_THRESHOLD, int(datetime.now().timestamp()))
+
+image.save("sandbox/{}".format(filename))
 image.show()
-# image.save("sandbox/RGB-"+str(int(datetime.now().timestamp()))+".png")
 
