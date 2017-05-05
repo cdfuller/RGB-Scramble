@@ -35,7 +35,7 @@ COLOR_OFFSET = 8
 # COLORS_PER_CHANNEL = 256
 # COLOR_OFFSET = 1
 
-COLOR_DISTANCE_THRESHOLD = 1000
+COLOR_DISTANCE_THRESHOLD = 2000
 
 image = Image.new("RGB", (IMG_WIDTH, IMG_HEIGHT))
 
@@ -140,13 +140,14 @@ def avg_color(colors):
 #   color2_lab = convert_color(color2_rgb, LabColor)
 #   return delta_e_cie2000(color1_lab, color2_lab)
 
-colors = generate_color_array()
-cProfile.run("insert_colors(colors, image)")
-# insert_colors(colors, image)
+if __name__ == '__main__':
+  colors = generate_color_array()
+  cProfile.run("insert_colors(colors, image)")
+  # insert_colors(colors, image)
 
-filename = "RGB-D{}-T{}-{}.png".format(COLOR_DEPTH, COLOR_DISTANCE_THRESHOLD, int(datetime.now().timestamp()))
+  filename = "RGB-{}-D{}-T{}.png".format(int(datetime.now().timestamp()), COLOR_DEPTH, COLOR_DISTANCE_THRESHOLD)
 
-image.save("sandbox/{}".format(filename))
-print("Saved {}".format(filename))
-image.show()
+  image.save("sandbox/{}".format(filename))
+  print("Saved {}".format(filename))
+  image.show()
 
