@@ -6,54 +6,53 @@ from colormath.color_objects import sRGBColor, LabColor
 from colormath.color_conversions import convert_color
 from colormath.color_diff import delta_e_cie2000 
 
+# Minimum similarity threshold
+# Logarithmic range: 0 to 195075
+# 
+# COLOR_DISTANCE_THRESHOLD = 2000
 
 # Formula for calculating number of colors per channel
 # N = number of bits per color.
 # (2**N) ** (1/3)
 
-##########
-# 2**15
-COLOR_DEPTH = 15
-IMG_WIDTH = 256
-IMG_HEIGHT = 128
-COLORS_PER_CHANNEL = 32
-COLOR_OFFSET = 8
+presets = {
+  15: {
+    "color_depth": 15,
+    "colors_per_channel": 32,
+    "color_offset": 8,
+    "img_width": 256,
+    "img_height": 128,
+  },
+  18: {
+    "color_depth": 18,
+    "colors_per_channel": 64,
+    "color_offset": 4,
+    "img_width": 512,
+    "img_height": 512,
+  },
+  24: {
+    "color_depth": 24,
+    "colors_per_channel": 256,
+    "color_offset": 1,
+    "img_width": 4096,
+    "img_height": 4096,
+  },
+}
 
-##########
-# # 2**18
-# COLOR_DEPTH = 18
-# IMG_WIDTH = 512
-# IMG_HEIGHT = 512
-# COLORS_PER_CHANNEL = 64
-# COLOR_OFFSET = 4
-
-##########
-# 2**24
-# COLOR_DEPTH = 24
-# IMG_WIDTH = 4096
-# IMG_HEIGHT = 4096
-# COLORS_PER_CHANNEL = 256
-# COLOR_OFFSET = 1
-
-COLOR_DISTANCE_THRESHOLD = 2000
-
-image = Image.new("RGB", (IMG_WIDTH, IMG_HEIGHT))
-
-
-def generate_color_array():
+def generate_color_array(config):
   colors = []
   print("Generating colors")
-  for r in range(0, COLORS_PER_CHANNEL):
-    for g in range(0, COLORS_PER_CHANNEL):
-      for b in range(0, COLORS_PER_CHANNEL):
-        colors.append((r * COLOR_OFFSET, g * COLOR_OFFSET, b * COLOR_OFFSET))
+  for r in range(0, config['colors_per_channel']):
+    for g in range(0, config['colors_per_channel']):
+      for b in range(0, config['colors_per_channel']):
+        colors.append((r * config['color_offset'], g * config['color_offset'], b * config['color_offset']))
   shuffle(colors)
   return colors
 
 def insert_colors(colors, image):
   px = image.load()
   counter = 0
-  total = IMG_WIDTH * IMG_HEIGHT
+  total = config['img_width'] * config['img_height']
   percentage_pt = int(total / 100 / 10) 
 
   print("Inserting colors")
@@ -61,8 +60,8 @@ def insert_colors(colors, image):
   last_pixel = (0, 0, 0)
   # pixel = colors.pop(randint(0, len(colors)))
 
-  for y in range(0, IMG_HEIGHT):
-    for x in range(0, IMG_WIDTH):
+  for y in range(0, config['img_height']):
+    for x in range(0, config['img_width']):
 
       # Get random color for first pixel
       if counter == 0:
@@ -78,7 +77,7 @@ def insert_colors(colors, image):
         else:
           target_color = last_pixel
 
-        while current_distance > COLOR_DISTANCE_THRESHOLD and i < len(colors):
+        while current_distance > config['threshold'] and i < len(colors):
           d = calc_distance(target_color, colors[i])
           if d < current_distance:
             current_distance = d
@@ -99,12 +98,6 @@ def insert_colors(colors, image):
 
   print("###########  {:.1%}  ###########".format(1))
 
-
-# def min_color(target, color1, color2):
-#   if calc_distance(target, color1) <= calc_distance(target, color2):
-#     return color1
-#   else:
-#     return color2
 
 # Returns an int ranging 0 to 195075. 0 being the same, 195075 being completely opposite
 def calc_distance(color1, color2):
@@ -140,14 +133,35 @@ def avg_color(colors):
 #   color2_lab = convert_color(color2_rgb, LabColor)
 #   return delta_e_cie2000(color1_lab, color2_lab)
 
-if __name__ == '__main__':
-  colors = generate_color_array()
-  cProfile.run("insert_colors(colors, image)")
-  # insert_colors(colors, image)
+def run(config):
+  colors = generate_color_array(config)
+  image = Image.new("RGB", (config['img_width'], config['img_height']))
 
+  if config['verbose']:
+    # Show stats after running
+    cProfile.runctx("insert_colors(colors, image)", {"colors": colors, "image":image, "insert_colors": insert_colors}, {})
+  else:
+    insert_colors(colors, image)
+
+  # Save image
   filename = "RGB-{}-D{}-T{}.png".format(int(datetime.now().timestamp()), COLOR_DEPTH, COLOR_DISTANCE_THRESHOLD)
 
   image.save("sandbox/{}".format(filename))
   print("Saved {}".format(filename))
   image.show()
 
+if __name__ == '__main__':
+  import argparse
+
+  parser = argparse.ArgumentParser()
+  parser.add_argument('-d', '--depth', help='set the color depth of the output image', type=int, choices=[15, 18, 24], default=15)
+  parser.add_argument('-t', '--threshold', help='set the threshold for color similarity', type=int, default=200)
+  parser.add_argument('-v', '--verbose', help='increase output verbosity', action='store_true')
+  args = parser.parse_args()
+
+  config = presets[args.depth]
+  print(args.verbose)
+  config['verbose'] = args.verbose
+  config['threshold'] = args.threshold
+
+  run(config);
