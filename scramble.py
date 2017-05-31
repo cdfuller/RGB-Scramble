@@ -41,7 +41,7 @@ presets = {
 
 def generate_color_array(config):
   colors = []
-  print("Generating colors")
+  print_v("Generating colors", config)
   for r in range(0, config['colors_per_channel']):
     for g in range(0, config['colors_per_channel']):
       for b in range(0, config['colors_per_channel']):
@@ -55,7 +55,7 @@ def insert_colors(colors, image):
   total = config['img_width'] * config['img_height']
   percentage_pt = int(total / 100 / 10) 
 
-  print("Inserting colors")
+  print_v("Inserting colors", config)
 
   last_pixel = (0, 0, 0)
   # pixel = colors.pop(randint(0, len(colors)))
@@ -93,10 +93,10 @@ def insert_colors(colors, image):
 
       # Display status
       if counter % percentage_pt == 0:
-        print("###########  {:.1%}  ###########".format(counter / total))
+        print_v("###########  {:.1%}  ###########".format(counter / total), config)
       counter += 1
 
-  print("###########  {:.1%}  ###########".format(1))
+  print_v("###########  {:.1%}  ###########".format(1), config)
 
 
 # Returns an int ranging 0 to 195075. 0 being the same, 195075 being completely opposite
@@ -133,6 +133,10 @@ def avg_color(colors):
 #   color2_lab = convert_color(color2_rgb, LabColor)
 #   return delta_e_cie2000(color1_lab, color2_lab)
 
+def print_v(s, config):
+  if config['verbose']:
+    print(s)
+
 def run(config):
   colors = generate_color_array(config)
   image = Image.new("RGB", (config['img_width'], config['img_height']))
@@ -147,7 +151,7 @@ def run(config):
   if config['save_output']:
     filename = "RGB-{}-D{}-T{}.png".format(int(datetime.now().timestamp()), config['color_depth'], config['threshold'])
     image.save("sandbox/{}".format(filename))
-    print("Saved {}".format(filename))
+    print_v("Saved {}".format(filename), config)
 
   image.show()
 
