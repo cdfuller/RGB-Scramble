@@ -2,9 +2,10 @@ from PIL import Image
 import cProfile
 from random import shuffle, randint
 from datetime import datetime
-from colormath.color_objects import sRGBColor, LabColor 
-from colormath.color_conversions import convert_color
-from colormath.color_diff import delta_e_cie2000 
+# from colormath.color_objects import sRGBColor, LabColor 
+# from colormath.color_conversions import convert_color
+# from colormath.color_diff import delta_e_cie2000 
+from view import print_v
 
 
 def generate_color_array(config):
@@ -101,24 +102,24 @@ def avg_color(colors):
 #   color2_lab = convert_color(color2_rgb, LabColor)
 #   return delta_e_cie2000(color1_lab, color2_lab)
 
-def print_v(s, config):
-  if config['verbose']:
-    print(s)
+# def print_v(s, config):
+#   if config['verbose']:
+#     print(s)
 
-def run(config):
-  colors = generate_color_array(config)
-  image = Image.new("RGB", (config['img_width'], config['img_height']))
+# def run(config):
+#   colors = generate_color_array(config)
+#   image = Image.new("RGB", (config['img_width'], config['img_height']))
 
-  if config['verbose']:
-    # Show stats after running
-    cProfile.runctx("insert_colors(colors, image, config)", {"colors": colors, "image":image, "insert_colors": insert_colors, 'config': config}, {})
-  else:
-    insert_colors(colors, image, config)
+#   if config['verbose']:
+#     # Show stats after running
+#     cProfile.runctx("insert_colors(colors, image, config)", {"colors": colors, "image":image, "insert_colors": insert_colors, 'config': config}, {})
+#   else:
+#     insert_colors(colors, image, config)
 
-  # Save image
-  if config['save_output']:
-    filename = "RGB-{}-D{}-T{}.png".format(int(datetime.now().timestamp()), config['color_depth'], config['threshold'])
-    image.save("sandbox/{}".format(filename))
-    print_v("Saved {}".format(filename), config)
+#   # Save image
+#   if config['save_output']:
+#     filename = "RGB-{}-D{}-T{}.png".format(int(datetime.now().timestamp()), config['color_depth'], config['threshold'])
+#     image.save("sandbox/{}".format(filename))
+#     print_v("Saved {}".format(filename), config)
 
-  image.show()
+#   image.show()

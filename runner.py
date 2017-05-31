@@ -1,5 +1,5 @@
 import argparse
-from scramble import run
+from controller import run
 
 # Minimum similarity threshold
 # Logarithmic range: 0 to 195075
