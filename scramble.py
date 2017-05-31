@@ -144,10 +144,11 @@ def run(config):
     insert_colors(colors, image)
 
   # Save image
-  filename = "RGB-{}-D{}-T{}.png".format(int(datetime.now().timestamp()), COLOR_DEPTH, COLOR_DISTANCE_THRESHOLD)
+  if config['save_output']:
+    filename = "RGB-{}-D{}-T{}.png".format(int(datetime.now().timestamp()), config['color_depth'], config['threshold'])
+    image.save("sandbox/{}".format(filename))
+    print("Saved {}".format(filename))
 
-  image.save("sandbox/{}".format(filename))
-  print("Saved {}".format(filename))
   image.show()
 
 if __name__ == '__main__':
@@ -157,11 +158,12 @@ if __name__ == '__main__':
   parser.add_argument('-d', '--depth', help='set the color depth of the output image', type=int, choices=[15, 18, 24], default=15)
   parser.add_argument('-t', '--threshold', help='set the threshold for color similarity', type=int, default=200)
   parser.add_argument('-v', '--verbose', help='increase output verbosity', action='store_true')
+  parser.add_argument('--no-save', help='don\'t save output file', action='store_false')
   args = parser.parse_args()
 
   config = presets[args.depth]
-  print(args.verbose)
   config['verbose'] = args.verbose
   config['threshold'] = args.threshold
+  config['save_output'] = args.no_save
 
   run(config);
