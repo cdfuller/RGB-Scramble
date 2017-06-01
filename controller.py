@@ -1,4 +1,7 @@
-from scramble import *
+import cProfile
+from PIL import Image
+from view import print_v
+from scramble import generate_color_array, insert_colors
 
 def run(config):
   colors = generate_color_array(config)
