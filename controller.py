@@ -5,8 +5,14 @@ def run(config):
   image = Image.new("RGB", (config['img_width'], config['img_height']))
 
   if config['verbose']:
-    # Show stats after running
-    cProfile.runctx("insert_colors(colors, image, config)", {"colors": colors, "image":image, "insert_colors": insert_colors, 'config': config}, {})
+    cProfile.runctx(
+      "insert_colors(colors, image, config)", 
+      {"colors": colors,
+        "image":image,
+        "insert_colors": insert_colors,
+        'config': config
+      },
+      {})
   else:
     insert_colors(colors, image, config)
 
