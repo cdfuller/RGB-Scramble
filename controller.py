@@ -16,10 +16,15 @@ def run(config):
   else:
     insert_colors(colors, image, config)
 
-  # Save image
+  save_canvas(image, config)
+  image.show()
+
+
+def save_canvas(image, config):
   if config['save_output']:
-    filename = "RGB-{}-D{}-T{}.png".format(int(datetime.now().timestamp()), config['color_depth'], config['threshold'])
+    filename = "RGB-{}-D{}-T{}.png".format(
+                                      int(datetime.now().timestamp()),
+                                      config['color_depth'],
+                                      config['threshold'])
     image.save("sandbox/{}".format(filename))
     print_v("Saved {}".format(filename), config)
-
-  image.show()
