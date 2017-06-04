@@ -1,8 +1,6 @@
 from random import shuffle, randint
-# from colormath.color_objects import sRGBColor, LabColor 
-# from colormath.color_conversions import convert_color
-# from colormath.color_diff import delta_e_cie2000 
 from view import print_v
+
 
 
 def generate_color_array(config):
@@ -24,7 +22,6 @@ def insert_colors(colors, image, config):
   print_v("Inserting colors", config)
 
   last_pixel = (0, 0, 0)
-  # pixel = colors.pop(randint(0, len(colors)))
 
   for y in range(0, config['img_height']):
     for x in range(0, config['img_width']):
@@ -82,19 +79,3 @@ def avg_color(colors):
   c['g'] = c['g'] / len(colors)
   c['b'] = c['b'] / len(colors)
   return (int(c['r']), int(c['g']), int(c['b']))
-
-
-# def min_lab_color(target, color1, color2):
-#   if calc_lab_distance(target, color1) <= calc_lab_distance(target, color2):
-#     return color1
-#   else:
-#     return color2
-
-
-# Returns a float ranging 0 to 100. 0 being the same, 100 being completely opposite
-# def calc_lab_distance(color1, color2):
-#   color1_rgb = sRGBColor(color1[0] / 255, color1[1] / 255, color1[2] / 255)
-#   color2_rgb = sRGBColor(color2[0] / 255, color2[1] / 255, color2[2] / 255)
-#   color1_lab = convert_color(color1_rgb, LabColor)
-#   color2_lab = convert_color(color2_rgb, LabColor)
-#   return delta_e_cie2000(color1_lab, color2_lab)
