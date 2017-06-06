@@ -2,7 +2,6 @@ from random import shuffle, randint
 from view import print_v
 
 
-
 def generate_color_array(config):
   colors = []
   print_v("Generating colors", config)
@@ -12,6 +11,7 @@ def generate_color_array(config):
         colors.append((r * config['color_offset'], g * config['color_offset'], b * config['color_offset']))
   shuffle(colors)
   return colors
+
 
 def insert_colors(colors, image, config):
   px = image.load()
@@ -35,6 +35,7 @@ def insert_colors(colors, image, config):
         current_distance = 999999
         target_color = 0
         
+        # If not in the first row, avg color of west and north pixels
         if y > 0:
           target_color = avg_color([px[x, y-1], last_pixel])
         else:
